@@ -283,62 +283,232 @@ function drawSnow(){
 }
 
 function drawGirl(gx,groundY,dir,amb,ts){
-  const dim=0.3+amb*0.65;
-  const tint=([r,g,b])=>[Math.round(r*dim),Math.round(g*dim),Math.round(b*dim)];
+  const dim=0.35+amb*0.65;
+  const h=Math.min(H*0.31,W*0.19,265);
+  const lw=Math.max(1.5,h*0.012);
   const isLeft=dir===1;
-  const c=tint(isLeft?[0,90,160]:[200,155,0]);
-  const s2=tint(isLeft?[200,155,0]:[0,90,160]);
-  const hat=tint(isLeft?[200,155,0]:[0,90,160]);
-  const bt=tint([30,30,40]);
-  const hr=tint([235,195,80]);
-  const sk2=tint([240,195,160]);
-  const h=Math.min(H*0.22,Math.min(W*0.14,170));
-  const waveAmt=dir*(0.4+Math.sin(ts*0.001*0.9)*0.12);
-  const windSway=Math.sin(ts*0.001*0.3)*h*0.02*dir;
+
+  const F=(r,g,b,a=1)=>`rgba(${Math.round(r*dim)},${Math.round(g*dim)},${Math.round(b*dim)},${a})`;
+  const Dk=(r,g,b,a=1)=>F(r*0.58,g*0.58,b*0.58,a);
+  const Lt=(r,g,b,a=1)=>F(Math.min(255,r*1.4),Math.min(255,g*1.4),Math.min(255,b*1.4),a);
+  const OUT=F(10,8,8);
+
+  const jk=isLeft?[0,100,175]:[215,170,0];
+  const sc=isLeft?[215,170,0]:[0,100,175];
+  const ht=isLeft?[215,170,0]:[0,100,175];
+  const pn=[22,28,42];
+  const bt=[22,18,16];
+  const hr=[242,202,72];
+  const sk=[245,200,162];
+  const lp=[210,88,82];
+  const ey=[50,110,195];
+
+  const sway=Math.sin(ts*0.00028)*h*0.011;
+  const hflow=Math.sin(ts*0.00038+0.4)*h*0.022;
+  const awave=Math.sin(ts*0.0016)*0.28;
+
+  function S(fc,lw2=lw,sc2=OUT){
+    ctx.lineWidth=lw2;ctx.lineJoin='round';ctx.lineCap='round';
+    if(fc!==null){ctx.fillStyle=fc;ctx.fill();}
+    ctx.strokeStyle=sc2;ctx.stroke();
+  }
+
   ctx.save();
-  ctx.translate(gx+windSway,groundY);
-  ctx.beginPath();ctx.ellipse(0,0,h*0.08,h*0.02,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fill();
-  ctx.fillStyle=rgb(bt);
-  ctx.fillRect(-h*0.09*dir,-h*0.14,h*0.07,h*0.14);ctx.fillRect(h*0.02*dir,-h*0.14,h*0.07,h*0.14);
-  ctx.fillStyle=rgb(tint([40,50,70]));
-  ctx.fillRect(-h*0.085*dir,-h*0.28,h*0.065,h*0.14);ctx.fillRect(h*0.022*dir,-h*0.28,h*0.065,h*0.14);
-  ctx.fillStyle=rgb(c);
+  ctx.translate(gx,groundY);
+  ctx.scale(dir,1);
+  ctx.translate(sway,0);
+
+  ctx.beginPath();ctx.ellipse(0,-2,h*0.1,h*0.025,0,0,Math.PI*2);
+  ctx.fillStyle='rgba(0,0,0,0.26)';ctx.fill();
+
   ctx.beginPath();
-  if(ctx.roundRect) ctx.roundRect(-h*0.14,-h*0.68,h*0.28,h*0.42,h*0.03);
-  else ctx.rect(-h*0.14,-h*0.68,h*0.28,h*0.42);
-  ctx.fill();
-  for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,-h*0.6+i*h*0.09,h*0.015,0,Math.PI*2);ctx.fillStyle=rgb(s2);ctx.fill();}
-  ctx.save();ctx.translate(-h*0.14*dir,-h*0.56);ctx.rotate((-0.3-waveAmt*0.3)*dir);
-  ctx.fillStyle=rgb(c);ctx.fillRect(-h*0.055,-h*0.2,h*0.07,h*0.22);
-  ctx.fillStyle=rgb(tint([200,80,80]));ctx.beginPath();ctx.ellipse(0,-h*0.22,h*0.06,h*0.07,0,0,Math.PI*2);ctx.fill();
+  ctx.moveTo(h*0.04,-h*0.012);
+  ctx.bezierCurveTo(h*0.03,-h*0.1,h*0.03,-h*0.2,h*0.04,-h*0.265);
+  ctx.bezierCurveTo(h*0.04,-h*0.278,h*0.07,-h*0.278,h*0.08,-h*0.265);
+  ctx.bezierCurveTo(h*0.09,-h*0.2,h*0.09,-h*0.1,h*0.08,-h*0.012);
+  ctx.lineTo(h*0.1,0);ctx.bezierCurveTo(h*0.11,h*0.012,h*0.03,h*0.012,h*0.02,0);
+  ctx.lineTo(h*0.04,-h*0.012);ctx.closePath();
+  S(Dk(...bt),lw,OUT);
+
+  ctx.beginPath();
+  ctx.moveTo(h*0.03,-h*0.265);
+  ctx.bezierCurveTo(h*0.02,-h*0.33,h*0.03,-h*0.4,h*0.05,-h*0.44);
+  ctx.bezierCurveTo(h*0.07,-h*0.46,h*0.11,-h*0.46,h*0.13,-h*0.44);
+  ctx.bezierCurveTo(h*0.14,-h*0.4,h*0.13,-h*0.33,h*0.12,-h*0.265);
+  ctx.bezierCurveTo(h*0.09,-h*0.265,h*0.06,-h*0.265,h*0.03,-h*0.265);ctx.closePath();
+  S(Dk(...pn),lw,OUT);
+
+  ctx.beginPath();
+  ctx.moveTo(-h*0.14,-h*0.44);
+  ctx.bezierCurveTo(-h*0.17,-h*0.5,-h*0.18,-h*0.63,-h*0.16,-h*0.73);
+  ctx.bezierCurveTo(-h*0.14,-h*0.79,-h*0.08,-h*0.81,-h*0.04,-h*0.80);
+  ctx.bezierCurveTo(-h*0.01,-h*0.82,h*0.03,-h*0.82,h*0.06,-h*0.80);
+  ctx.bezierCurveTo(h*0.11,-h*0.81,h*0.16,-h*0.79,h*0.17,-h*0.73);
+  ctx.bezierCurveTo(h*0.19,-h*0.63,h*0.18,-h*0.5,h*0.16,-h*0.44);
+  ctx.bezierCurveTo(h*0.11,-h*0.42,-h*0.09,-h*0.42,-h*0.14,-h*0.44);ctx.closePath();
+  S(F(...jk),lw,OUT);
+  ctx.beginPath();
+  ctx.moveTo(h*0.08,-h*0.44);
+  ctx.bezierCurveTo(h*0.14,-h*0.46,h*0.18,-h*0.59,h*0.17,-h*0.73);
+  ctx.bezierCurveTo(h*0.14,-h*0.79,h*0.09,-h*0.81,h*0.06,-h*0.80);
+  ctx.bezierCurveTo(h*0.11,-h*0.76,h*0.14,-h*0.66,h*0.13,-h*0.54);
+  ctx.bezierCurveTo(h*0.11,-h*0.46,h*0.08,-h*0.44,h*0.08,-h*0.44);ctx.closePath();
+  ctx.fillStyle=Dk(...jk,0.38);ctx.fill();
+  ctx.beginPath();ctx.moveTo(0,-h*0.44);ctx.lineTo(0,-h*0.79);
+  ctx.lineWidth=h*0.008;ctx.strokeStyle=Dk(...jk);ctx.stroke();
+  for(let i=0;i<4;i++){ctx.beginPath();ctx.arc(-h*0.005,-h*0.5-i*h*0.064,h*0.013,0,Math.PI*2);S(F(...sc),lw*0.5,OUT);}
+  ctx.beginPath();ctx.moveTo(-h*0.05,-h*0.75);ctx.lineTo(-h*0.09,-h*0.72);ctx.lineTo(-h*0.07,-h*0.66);ctx.lineTo(-h*0.01,-h*0.75);ctx.closePath();
+  S(Dk(...jk,0.9),lw*0.7,OUT);
+  ctx.beginPath();ctx.moveTo(h*0.05,-h*0.75);ctx.lineTo(h*0.09,-h*0.72);ctx.lineTo(h*0.07,-h*0.66);ctx.lineTo(h*0.01,-h*0.75);ctx.closePath();
+  S(Dk(...jk,0.9),lw*0.7,OUT);
+
+  ctx.beginPath();
+  ctx.moveTo(-h*0.13,-h*0.265);
+  ctx.bezierCurveTo(-h*0.15,-h*0.33,-h*0.16,-h*0.4,-h*0.14,-h*0.44);
+  ctx.bezierCurveTo(-h*0.12,-h*0.46,-h*0.08,-h*0.46,-h*0.06,-h*0.44);
+  ctx.bezierCurveTo(-h*0.04,-h*0.4,-h*0.04,-h*0.33,-h*0.04,-h*0.265);
+  ctx.bezierCurveTo(-h*0.07,-h*0.265,-h*0.1,-h*0.265,-h*0.13,-h*0.265);ctx.closePath();
+  S(F(...pn),lw,OUT);
+  ctx.beginPath();ctx.moveTo(-h*0.14,-h*0.42);ctx.bezierCurveTo(-h*0.16,-h*0.33,-h*0.15,-h*0.28,-h*0.13,-h*0.265);
+  ctx.lineWidth=h*0.012;ctx.strokeStyle=Lt(...pn,0.48);ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-h*0.03,-h*0.012);
+  ctx.bezierCurveTo(-h*0.02,-h*0.1,-h*0.02,-h*0.2,-h*0.03,-h*0.265);
+  ctx.bezierCurveTo(-h*0.03,-h*0.278,-h*0.07,-h*0.278,-h*0.08,-h*0.265);
+  ctx.bezierCurveTo(-h*0.09,-h*0.2,-h*0.09,-h*0.1,-h*0.08,-h*0.012);
+  ctx.lineTo(-h*0.14,0);ctx.bezierCurveTo(-h*0.15,h*0.012,-h*0.02,h*0.012,0,0);
+  ctx.lineTo(-h*0.03,-h*0.012);ctx.closePath();
+  S(F(...bt),lw,OUT);
+  ctx.beginPath();ctx.moveTo(-h*0.025,-h*0.25);ctx.bezierCurveTo(-h*0.02,-h*0.17,-h*0.02,-h*0.09,-h*0.03,-h*0.03);
+  ctx.lineWidth=h*0.014;ctx.strokeStyle=Lt(...bt,0.6);ctx.stroke();
+
+  ctx.save();ctx.translate(h*0.15,-h*0.64);ctx.rotate(0.28+Math.sin(ts*0.001)*0.08);
+  ctx.beginPath();ctx.moveTo(-h*0.03,0);ctx.bezierCurveTo(-h*0.055,-h*0.02,-h*0.065,-h*0.14,-h*0.058,-h*0.22);
+  ctx.bezierCurveTo(-h*0.05,-h*0.26,-h*0.02,-h*0.265,h*0.012,-h*0.255);
+  ctx.bezierCurveTo(h*0.032,-h*0.14,h*0.028,-h*0.02,h*0.012,0);ctx.closePath();
+  S(Dk(...jk,0.9),lw,OUT);
+  ctx.beginPath();ctx.ellipse(0,-h*0.3,h*0.065,h*0.09,0,0,Math.PI*2);S(F(...sk),lw,OUT);
   ctx.restore();
-  ctx.save();ctx.translate(h*0.14*dir,-h*0.56);ctx.rotate(0.15*dir);
-  ctx.fillStyle=rgb(c);ctx.fillRect(-h*0.015,-h*0.2,h*0.07,h*0.22);
-  ctx.fillStyle=rgb(tint([200,80,80]));ctx.beginPath();ctx.ellipse(h*0.02,-h*0.22,h*0.06,h*0.07,0,0,Math.PI*2);ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(-h*0.14,-h*0.735);ctx.bezierCurveTo(-h*0.12,-h*0.785,-h*0.03,-h*0.825,0,-h*0.825);
+  ctx.bezierCurveTo(h*0.03,-h*0.825,h*0.12,-h*0.785,h*0.14,-h*0.735);
+  ctx.bezierCurveTo(h*0.12,-h*0.685,h*0.03,-h*0.650,0,-h*0.650);
+  ctx.bezierCurveTo(-h*0.03,-h*0.650,-h*0.12,-h*0.685,-h*0.14,-h*0.735);ctx.closePath();
+  S(F(...sc),lw,OUT);
+  ctx.beginPath();ctx.moveTo(-h*0.1,-h*0.76);ctx.bezierCurveTo(-h*0.05,-h*0.805,h*0.05,-h*0.805,h*0.1,-h*0.76);
+  ctx.lineWidth=h*0.014;ctx.strokeStyle=Lt(...sc,0.48);ctx.stroke();
+  ctx.save();ctx.translate(hflow*0.3,0);
+  ctx.beginPath();ctx.moveTo(h*0.08,-h*0.70);ctx.bezierCurveTo(h*0.11,-h*0.62,h*0.15,-h*0.52,h*0.12,-h*0.44);
+  ctx.bezierCurveTo(h*0.1,-h*0.42,h*0.08,-h*0.46,h*0.1,-h*0.52);
+  ctx.bezierCurveTo(h*0.14,-h*0.56,h*0.14,-h*0.64,h*0.12,-h*0.70);ctx.closePath();
+  S(Dk(...sc,0.9),lw,OUT);ctx.restore();
+
+  ctx.save();ctx.translate(-h*0.15,-h*0.64);ctx.rotate(-0.48+awave);
+  ctx.beginPath();ctx.moveTo(-h*0.03,0);ctx.bezierCurveTo(-h*0.055,-h*0.02,-h*0.065,-h*0.14,-h*0.058,-h*0.22);
+  ctx.bezierCurveTo(-h*0.05,-h*0.26,-h*0.02,-h*0.265,h*0.012,-h*0.255);
+  ctx.bezierCurveTo(h*0.032,-h*0.14,h*0.028,-h*0.02,h*0.012,0);ctx.closePath();
+  S(F(...jk),lw,OUT);
+  ctx.beginPath();ctx.ellipse(0,-h*0.3,h*0.065,h*0.09,0,0,Math.PI*2);S(F(...sk),lw,OUT);
   ctx.restore();
-  ctx.fillStyle=rgb(s2);
-  if(ctx.roundRect){ctx.beginPath();ctx.roundRect(-h*0.1,-h*0.75,h*0.2,h*0.08,h*0.03);ctx.fill();}
-  else{ctx.fillRect(-h*0.1,-h*0.75,h*0.2,h*0.08);}
-  ctx.beginPath();ctx.ellipse(h*0.03*dir,-h*0.73,h*0.03,h*0.025,0,0,Math.PI*2);ctx.fillStyle=rgb(tint([s2[0]+20,s2[1]+20,s2[2]+20]));ctx.fill();
-  ctx.fillStyle=rgb(hr);
-  ctx.beginPath();ctx.ellipse(-dir*h*0.02,-h*0.88,h*0.11,h*0.14,0.2*dir,0,Math.PI*2);ctx.fill();
-  for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*h*0.06,-h*0.78);ctx.quadraticCurveTo(i*h*0.1+dir*h*0.03,-h*0.6,i*h*0.09,-h*0.38);ctx.lineWidth=h*0.028;ctx.strokeStyle=rgb(hr);ctx.stroke();}
-  ctx.fillStyle=rgb(sk2);ctx.beginPath();ctx.ellipse(0,-h*0.88,h*0.1,h*0.12,0,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle=rgb(hat);
-  ctx.beginPath();ctx.ellipse(0,-h*0.95,h*0.11,h*0.07,0,0,Math.PI*2);ctx.fill();
-  ctx.fillRect(-h*0.11,-h*1.08,h*0.22,h*0.15);
-  ctx.beginPath();ctx.ellipse(0,-h*1.08,h*0.11,h*0.04,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.arc(dir*h*0.02,-h*1.1,h*0.038,0,Math.PI*2);ctx.fillStyle=rgb(tint([255,255,255]));ctx.fill();
-  ctx.fillStyle=rgb(hr);ctx.beginPath();
-  ctx.moveTo(-h*0.08,-h*0.98);ctx.quadraticCurveTo(-h*0.09,-h*0.86,-h*0.06,-h*0.8);
-  ctx.quadraticCurveTo(-h*0.1,-h*0.78,-h*0.07,-h*0.76);ctx.quadraticCurveTo(-h*0.05,-h*0.74,-h*0.03,-h*0.76);
-  ctx.closePath();ctx.fill();
-  const ex=dir*h*0.03;
-  ctx.beginPath();ctx.ellipse(ex,-h*0.9,h*0.015,h*0.018,0,0,Math.PI*2);ctx.fillStyle=rgb(tint([40,30,20]));ctx.fill();
-  ctx.beginPath();ctx.arc(ex+h*0.005*dir,-h*0.904,h*0.006,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.7)';ctx.fill();
-  ctx.beginPath();ctx.moveTo(ex-h*0.025,-h*0.915);ctx.lineTo(ex+h*0.025,-h*0.912);ctx.lineWidth=h*0.012;ctx.strokeStyle=rgb(tint([100,70,30]));ctx.stroke();
-  ctx.beginPath();ctx.ellipse(ex,-h*0.875,h*0.028,h*0.018,0,0,Math.PI*2);ctx.fillStyle='rgba('+tint([255,160,140]).join(',')+',0.4)';ctx.fill();
-  ctx.beginPath();ctx.arc(0,-h*0.868,h*0.03,0.2,Math.PI-0.2);ctx.lineWidth=h*0.01;ctx.strokeStyle=rgb(tint([180,80,60]));ctx.stroke();
+
+  ctx.save();ctx.translate(hflow*0.5,0);
+  ctx.beginPath();ctx.moveTo(h*0.07,-h*0.99);
+  ctx.bezierCurveTo(h*0.15,-h*0.9,h*0.2,-h*0.75,h*0.19,-h*0.58);
+  ctx.bezierCurveTo(h*0.18,-h*0.46,h*0.13,-h*0.44,h*0.1,-h*0.46);
+  ctx.bezierCurveTo(h*0.07,-h*0.46,h*0.09,-h*0.56,h*0.1,-h*0.70);
+  ctx.bezierCurveTo(h*0.11,-h*0.84,h*0.07,-h*0.96,0,-h*0.99);ctx.closePath();
+  S(Dk(...hr,0.86),lw,OUT);
+  ctx.beginPath();ctx.moveTo(h*0.01,-h*1.01);
+  ctx.bezierCurveTo(h*0.07,-h*0.9,h*0.1,-h*0.76,h*0.08,-h*0.6);
+  ctx.bezierCurveTo(h*0.07,-h*0.5,h*0.03,-h*0.49,h*0.01,-h*0.51);
+  ctx.bezierCurveTo(h*0.0,-h*0.62,h*0.03,-h*0.78,h*0.03,-h*0.95);
+  ctx.bezierCurveTo(h*0.02,-h*1.01,0,-h*1.03,h*0.01,-h*1.01);ctx.closePath();
+  S(Dk(...hr,0.80),lw,OUT);ctx.restore();
+
+  ctx.beginPath();
+  ctx.moveTo(-h*0.09,-h*0.80);
+  ctx.bezierCurveTo(-h*0.13,-h*0.845,-h*0.13,-h*0.955,-h*0.09,-h*1.01);
+  ctx.bezierCurveTo(-h*0.06,-h*1.05,h*0.06,-h*1.05,h*0.09,-h*1.01);
+  ctx.bezierCurveTo(h*0.13,-h*0.955,h*0.13,-h*0.845,h*0.09,-h*0.80);
+  ctx.bezierCurveTo(h*0.06,-h*0.775,-h*0.06,-h*0.775,-h*0.09,-h*0.80);ctx.closePath();
+  S(F(...sk),lw,OUT);
+
+  ctx.save();ctx.translate(hflow*0.3,0);
+  ctx.beginPath();ctx.moveTo(-h*0.1,-h*0.98);
+  ctx.bezierCurveTo(-h*0.1,-h*1.11,-h*0.05,-h*1.17,0,-h*1.17);
+  ctx.bezierCurveTo(h*0.05,-h*1.17,h*0.1,-h*1.11,h*0.1,-h*0.98);
+  ctx.bezierCurveTo(h*0.07,-h*0.908,-h*0.07,-h*0.908,-h*0.1,-h*0.98);ctx.closePath();
+  S(F(...hr),lw,OUT);
+  ctx.beginPath();ctx.moveTo(-h*0.065,-h*1.14);ctx.bezierCurveTo(-h*0.02,-h*1.18,h*0.04,-h*1.17,h*0.075,-h*1.14);
+  ctx.lineWidth=h*0.018;ctx.strokeStyle=Lt(...hr,0.5);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-h*0.1,-h*0.98);ctx.bezierCurveTo(-h*0.12,-h*0.92,-h*0.1,-h*0.87,-h*0.08,-h*0.845);
+  ctx.bezierCurveTo(-h*0.1,-h*0.845,-h*0.13,-h*0.845,-h*0.13,-h*0.87);
+  ctx.bezierCurveTo(-h*0.14,-h*0.92,-h*0.12,-h*0.98,-h*0.1,-h*0.98);ctx.closePath();
+  S(Dk(...hr,0.9),lw,OUT);ctx.restore();
+
+  const ex1=h*0.03,ey1=-h*0.908;
+  const ex2=-h*0.046,ey2=-h*0.906;
+
+  [[ex1,ey1,1.0],[ex2,ey2,0.86]].forEach(([ex,ey,sc2])=>{
+    ctx.beginPath();ctx.ellipse(ex,ey,h*0.032*sc2,h*0.022*sc2,0,0,Math.PI*2);
+    S(F(240,238,234),lw*0.4,OUT);
+  });
+  ctx.beginPath();ctx.arc(ex1,ey1,h*0.017,0,Math.PI*2);S(F(...ey),lw*0.4,OUT);
+  ctx.beginPath();ctx.arc(ex2,ey2,h*0.014,0,Math.PI*2);S(F(...ey),lw*0.4,OUT);
+  [[ex1+h*0.004,ey1,h*0.009],[ex2+h*0.003,ey2,h*0.007]].forEach(([x,y,r])=>{
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=F(10,10,15);ctx.fill();
+  });
+  ctx.beginPath();ctx.arc(ex1+h*0.009,ey1-h*0.007,h*0.006,0,Math.PI*2);
+  ctx.fillStyle=`rgba(255,255,255,${0.95*dim})`;ctx.fill();
+  ctx.beginPath();ctx.arc(ex2+h*0.007,ey2-h*0.006,h*0.005,0,Math.PI*2);
+  ctx.fillStyle=`rgba(255,255,255,${0.9*dim})`;ctx.fill();
+  [[ex1,ey1,h*0.032,h*0.03,h*0.014],[ex2,ey2,h*0.028,h*0.026,h*0.012]].forEach(([ex,ey,hw,hd,lw2])=>{
+    ctx.beginPath();ctx.moveTo(ex-hw,ey-h*0.016);
+    ctx.bezierCurveTo(ex-hw*0.4,ey-h*0.030,ex+hw*0.4,ey-h*0.030,ex+hw,ey-h*0.016);
+    ctx.lineWidth=lw2;ctx.strokeStyle=F(14,10,10);ctx.stroke();
+  });
+  [[ex1,ey1],[ex2,ey2]].forEach(([ex,ey])=>{
+    const bw=ex===ex1?h*0.034:h*0.030;
+    ctx.beginPath();ctx.moveTo(ex-bw,ey-h*0.036);
+    ctx.bezierCurveTo(ex-bw*0.3,ey-h*0.048,ex+bw*0.3,ey-h*0.045,ex+bw,ey-h*0.035);
+    ctx.lineWidth=ex===ex1?h*0.018:h*0.015;ctx.strokeStyle=F(155,118,48);ctx.lineCap='round';ctx.stroke();
+  });
+  ctx.beginPath();ctx.moveTo(h*0.02,-h*0.882);ctx.bezierCurveTo(h*0.026,-h*0.876,h*0.022,-h*0.871,h*0.012,-h*0.871);
+  ctx.lineWidth=h*0.011;ctx.strokeStyle=Dk(...sk,0.48);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-h*0.025,-h*0.858);
+  ctx.bezierCurveTo(-h*0.014,-h*0.869,h*0.014,-h*0.869,h*0.025,-h*0.858);
+  ctx.bezierCurveTo(h*0.013,-h*0.847,-h*0.013,-h*0.847,-h*0.025,-h*0.858);ctx.closePath();
+  S(F(...lp),lw*0.6,Dk(...lp));
+  ctx.beginPath();ctx.moveTo(-h*0.025,-h*0.858);ctx.bezierCurveTo(-h*0.012,-h*0.865,h*0.012,-h*0.865,h*0.025,-h*0.858);
+  ctx.lineWidth=h*0.008;ctx.strokeStyle=Dk(...lp);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-h*0.014,-h*0.853);ctx.bezierCurveTo(-h*0.004,-h*0.849,h*0.004,-h*0.849,h*0.014,-h*0.853);
+  ctx.lineWidth=h*0.008;ctx.strokeStyle=Lt(...lp,0.42);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(ex1-h*0.01,ey1+h*0.03,h*0.038,h*0.022,0,0,Math.PI*2);
+  ctx.fillStyle=`rgba(${Math.round(255*dim)},${Math.round(145*dim)},${Math.round(130*dim)},0.3)`;ctx.fill();
+
+  ctx.save();ctx.translate(hflow*0.15,0);
+  ctx.beginPath();ctx.moveTo(-h*0.12,-h*0.975);
+  ctx.bezierCurveTo(-h*0.13,-h*1.04,-h*0.11,-h*1.12,-h*0.06,-h*1.16);
+  ctx.bezierCurveTo(-h*0.02,-h*1.19,h*0.02,-h*1.19,h*0.06,-h*1.16);
+  ctx.bezierCurveTo(h*0.11,-h*1.12,h*0.13,-h*1.04,h*0.12,-h*0.975);
+  ctx.bezierCurveTo(h*0.09,-h*0.99,-h*0.09,-h*0.99,-h*0.12,-h*0.975);ctx.closePath();
+  S(F(...ht),lw,OUT);
+  ctx.beginPath();ctx.moveTo(-h*0.12,-h*0.975);
+  ctx.bezierCurveTo(-h*0.12,-h*1.015,-h*0.09,-h*1.035,0,-h*1.035);
+  ctx.bezierCurveTo(h*0.09,-h*1.035,h*0.12,-h*1.015,h*0.12,-h*0.975);
+  ctx.bezierCurveTo(h*0.09,-h*0.956,-h*0.09,-h*0.956,-h*0.12,-h*0.975);ctx.closePath();
+  S(Dk(...ht,0.78),lw,OUT);
+  for(let i=-3;i<=3;i++){
+    ctx.beginPath();ctx.moveTo(i*h*0.03,-h*0.96);ctx.lineTo(i*h*0.03,-h*1.03);
+    ctx.lineWidth=h*0.007;ctx.strokeStyle=Dk(...ht,0.6,0.42);ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(0,-h*1.195,h*0.042,0,Math.PI*2);S(F(242,242,242),lw,OUT);
+  ctx.beginPath();ctx.arc(-h*0.013,-h*1.205,h*0.024,0,Math.PI*2);
+  ctx.fillStyle=F(220,220,220,0.5);ctx.fill();
+  ctx.restore();
+
   ctx.restore();
 }
 
