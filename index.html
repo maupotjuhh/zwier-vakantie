@@ -2,804 +2,405 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🏖️ Zwier / Juni's Vakantie Countdown</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏖️</text></svg>">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🇸🇪 Zwier / Juni – Göteborg Countdown</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root { --accent: #fbbf24; }
-
-  body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    min-height: 100vh;
-    background: #0c4a6e;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow-x: hidden;
-    position: relative;
-    padding: 24px 16px 120px;
-  }
-
-  #scene { position: fixed; inset: 0; z-index: 0; }
-
-  header { text-align: center; z-index: 2; }
-
-  .badge {
-    display: inline-block;
-    background: rgba(8,24,40,.45);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(251,191,36,.55);
-    color: var(--accent);
-    padding: 6px 18px;
-    border-radius: 999px;
-    font-size: .85rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-    text-shadow: 0 1px 3px rgba(0,0,0,.6);
-  }
-
-  h1 {
-    font-size: clamp(2rem, 6vw, 3.4rem);
-    font-weight: 800;
-    line-height: 1.15;
-    text-shadow: 0 2px 6px rgba(0,0,0,.55), 0 8px 30px rgba(0,0,0,.4);
-  }
-  h1 .name {
-    background: linear-gradient(90deg, #fde047, #fb923c);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,.45));
-  }
-
-  .subtitle {
-    margin-top: 12px;
-    font-size: clamp(1rem, 2.5vw, 1.2rem);
-    color: rgba(255,255,255,.95);
-    text-shadow: 0 1px 4px rgba(0,0,0,.6);
-  }
-
-  /* Countdown */
-  .countdown {
-    display: flex;
-    gap: clamp(10px, 2.5vw, 22px);
-    margin: 38px 0 8px;
-    z-index: 2;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .unit {
-    background: rgba(8,24,40,.45);
-    backdrop-filter: blur(10px) saturate(1.2);
-    border: 1px solid rgba(255,255,255,.25);
-    border-radius: 20px;
-    padding: clamp(14px, 2.6vw, 24px) clamp(12px, 2.6vw, 26px);
-    text-align: center;
-    min-width: clamp(78px, 17vw, 124px);
-    box-shadow: 0 10px 30px rgba(0,0,0,.3);
-    transition: transform .2s;
-  }
-  .unit:hover { transform: translateY(-4px); }
-  .unit .num {
-    font-size: clamp(2.1rem, 6.5vw, 3.7rem);
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-    color: var(--accent);
-    text-shadow: 0 2px 12px rgba(0,0,0,.5);
-    display: inline-block;
-  }
-  .num.pop { animation: pop .3s ease; }
-  @keyframes pop { 40% { transform: scale(1.16); } }
-  .unit .lbl {
-    margin-top: 6px;
-    font-size: clamp(.68rem, 1.8vw, .88rem);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: rgba(255,255,255,.85);
-    text-shadow: 0 1px 3px rgba(0,0,0,.5);
-  }
-
-  .workdays {
-    z-index: 2;
-    margin-top: 16px;
-    font-size: clamp(1rem, 2.6vw, 1.25rem);
-    background: rgba(8,24,40,.45);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,.25);
-    padding: 12px 26px;
-    border-radius: 999px;
-    text-shadow: 0 1px 3px rgba(0,0,0,.5);
-  }
-  .workdays b { color: var(--accent); }
-
-  /* Voortgang */
-  .progress-wrap {
-    z-index: 2;
-    width: min(620px, 92vw);
-    margin-top: 30px;
-    text-align: center;
-    background: rgba(8,24,40,.4);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,.18);
-    border-radius: 18px;
-    padding: 16px 20px 14px;
-  }
-  .progress-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: .85rem;
-    color: rgba(255,255,255,.85);
-    margin-bottom: 8px;
-  }
-  .progress-bar {
-    height: 16px;
-    background: rgba(255,255,255,.15);
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid rgba(255,255,255,.2);
-  }
-  .progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #fbbf24, #fb923c, #f472b6);
-    border-radius: 999px;
-    transition: width 1s ease;
-    box-shadow: 0 0 14px rgba(251,191,36,.6);
-  }
-  .progress-pct { margin-top: 8px; font-weight: 700; color: var(--accent); text-shadow: 0 1px 3px rgba(0,0,0,.5); }
-
-  .quote {
-    z-index: 2;
-    margin-top: 28px;
-    font-style: italic;
-    color: rgba(255,255,255,.95);
-    text-align: center;
-    max-width: 560px;
-    font-size: clamp(.95rem, 2.2vw, 1.1rem);
-    min-height: 2.4em;
-    text-shadow: 0 1px 4px rgba(0,0,0,.65);
-    transition: opacity .45s;
-  }
-
-  /* Vakantie-modus */
-  #vacationMsg { display: none; text-align: center; z-index: 2; }
-  #vacationMsg .big { font-size: clamp(3rem, 10vw, 6rem); }
-
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:100%;height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:#020810}
+  #scene{display:block;position:fixed;inset:0;width:100%;height:100%}
+  #ui{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;gap:clamp(6px,1.5vh,14px)}
+  .flag-bar{font-size:clamp(22px,4vw,38px)}
+  #title{color:#fff;font-size:clamp(14px,2.4vw,22px);font-weight:700;letter-spacing:.06em;text-shadow:0 2px 12px #000a;text-align:center}
+  #subtitle{color:#FECC02;font-size:clamp(10px,1.6vw,15px);letter-spacing:.12em;text-shadow:0 1px 8px #000a;text-align:center}
+  #countdown{display:flex;gap:clamp(8px,2vw,24px);align-items:flex-end}
+  .unit{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .num{font-size:clamp(32px,7vw,80px);font-weight:900;line-height:1;color:#fff;text-shadow:0 0 30px rgba(0,106,167,.8),0 2px 16px #000}
+  .lbl{font-size:clamp(8px,1.1vw,11px);letter-spacing:.15em;color:#FECC02;text-transform:uppercase;font-weight:600}
+  .sep{font-size:clamp(28px,5vw,60px);font-weight:900;color:#fff;padding-bottom:.1em;opacity:.6;line-height:1.1}
+  #progress-wrap{width:clamp(220px,55vw,520px);display:flex;flex-direction:column;gap:4px}
+  #prog-label{color:#adf;font-size:clamp(8px,1vw,10px);letter-spacing:.12em;text-align:center}
+  #prog-bg{background:rgba(255,255,255,.12);border-radius:99px;height:7px;overflow:hidden}
+  #prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#006AA7,#FECC02);transition:width .6s ease}
+  #quote{color:rgba(255,255,255,.75);font-size:clamp(9px,1.3vw,13px);font-style:italic;text-align:center;max-width:420px;padding:0 16px;text-shadow:0 1px 6px #000}
+  #date-line{color:rgba(254,204,2,.8);font-size:clamp(8px,1.1vw,11px);letter-spacing:.1em;text-shadow:0 1px 6px #000}
+  #celebration{position:fixed;inset:0;background:rgba(0,20,60,.92);display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:100}
+  #celebration h1{color:#FECC02;font-size:clamp(28px,6vw,64px);font-weight:900;text-align:center;text-shadow:0 0 40px #FECC02}
+  #celebration p{color:#fff;font-size:clamp(14px,2.5vw,22px);text-align:center;max-width:600px}
+  #confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:99}
 </style>
 </head>
 <body>
-  <canvas id="scene"></canvas>
-
-  <header>
-    <div class="badge">☀️ Vakantie Countdown ☀️</div>
-    <h1>Nog even volhouden, <span class="name">Zwier / Juni</span>! 💪</h1>
-    <p class="subtitle">Laatste werkdag: <b>donderdag 30 juli</b> &nbsp;·&nbsp; Vakantie vanaf: <b>vrijdag 31 juli</b> 🎉</p>
-  </header>
-
-  <div class="countdown" id="countdown">
-    <div class="unit"><div class="num" id="d">–</div><div class="lbl">Dagen</div></div>
-    <div class="unit"><div class="num" id="h">–</div><div class="lbl">Uren</div></div>
-    <div class="unit"><div class="num" id="m">–</div><div class="lbl">Minuten</div></div>
-    <div class="unit"><div class="num" id="s">–</div><div class="lbl">Seconden</div></div>
+<canvas id="scene"></canvas>
+<canvas id="confetti-canvas"></canvas>
+<div id="ui">
+  <div class="flag-bar">🇸🇪</div>
+  <div id="title">ZWIER / JUNI ✈ GÖTEBORG</div>
+  <div id="subtitle">26 NOVEMBER 2026 · 09:45</div>
+  <div id="countdown">
+    <div class="unit"><span class="num" id="d-days">--</span><span class="lbl">dagen</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><span class="num" id="d-hours">--</span><span class="lbl">uren</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><span class="num" id="d-min">--</span><span class="lbl">min</span></div>
+    <div class="sep">:</div>
+    <div class="unit"><span class="num" id="d-sec">--</span><span class="lbl">sec</span></div>
   </div>
-
-  <div class="workdays" id="workdays"></div>
-
-  <div class="progress-wrap" id="progressWrap">
-    <div class="progress-label"><span>Vandaag</span><span>🏖️ 31 juli</span></div>
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="progress-pct" id="progressPct"></div>
+  <div id="progress-wrap">
+    <div id="prog-label">VOORTGANG</div>
+    <div id="prog-bg"><div id="prog-fill" style="width:0%"></div></div>
   </div>
-
-  <div class="quote" id="quote"></div>
-
-  <div id="vacationMsg">
-    <div class="big">🎉🏖️🍹</div>
-    <h1>HET IS ZOVER, ZWIER / JUNI!</h1>
-    <p class="subtitle">Jullie zijn officieel MET VAKANTIE! Geniet ervan, jullie hebben het verdiend! 🌴</p>
-  </div>
-
-  <canvas id="confetti" style="position:fixed;inset:0;pointer-events:none;z-index:5;"></canvas>
-
+  <div id="quote"></div>
+  <div id="date-line">🛫 Vlucht naar Göteborg · Scandinavisch avontuur!</div>
+</div>
+<div id="celebration">
+  <h1>🇸🇪 HET IS ZOVER!</h1>
+  <p>ZWIER / JUNI, jullie vliegen naar GÖTEBORG!<br>Geniet van Zweden! 🦐 🌊 ❄️</p>
+</div>
 <script>
-  const $ = id => document.getElementById(id);
+(function(){
+'use strict';
+const TARGET=new Date(2026,10,26,9,45,0);
+const LS_KEY='zwierGoteborg2026';
+const QUOTES=[
+  '🇸🇪 Hej hej, Göteborg! Jullie komen eraan!',
+  '🦐 Räkmacka\'s bij de Feskekörka... bijna tijd!',
+  '❄️ Scandinavisch avontuur staat op het programma!',
+  '☕ Zweedse fika en kanelbullar wachten al op jullie!',
+  '🌊 De westkust van Zweden roept jullie naam!',
+  '🧣 Zwier / Juni, alvast een dikke jas in de koffer!',
+  '🌟 Misschien zelfs een glimp van het noorderlicht?',
+  '🎄 Göteborg in november — sprookjesachtig mooi!',
+  '🏰 Haga-wijk + glühwein = perfecte sfeer!',
+  '✈️ Nog even, dan is het out-of-office tijd!',
+];
+const cv=document.getElementById('scene');
+const ctx=cv.getContext('2d');
+let W=0,H=0;
 
-  /* ============================================================
-     LEVENDE STRANDSCÈNE — meekleurend met de echte klok
-     ============================================================ */
-  const FORCE_T = (() => {
-    const v = new URLSearchParams(location.search).get('t');
-    return v === null ? null : parseFloat(v);
-  })();
+function hex(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rgb(c,a=1){return 'rgba('+Math.round(c[0])+','+Math.round(c[1])+','+Math.round(c[2])+','+a+')';}
+function lerpc(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t];}
+function C(h){return hex(h);}
 
-  const sceneCv = $('scene'), sc = sceneCv.getContext('2d');
-  let W = 0, H = 0, horizonY = 0, shoreY = 0;
-  let stars = [], clouds = [], birds = [], speckles = [];
+const KEYS=[
+  {h:0, top:C('#020810'),mid:C('#050d1e'),bot:C('#091425'),gt:C('#0a1522'),amb:0},
+  {h:5, top:C('#020810'),mid:C('#050d1e'),bot:C('#091425'),gt:C('#0a1522'),amb:0},
+  {h:7, top:C('#1a2545'),mid:C('#2e3560'),bot:C('#5a4a5e'),gt:C('#1e2e3e'),amb:0.1},
+  {h:8, top:C('#3a5070'),mid:C('#607888'),bot:C('#98b0bc'),gt:C('#4a6070'),amb:0.5},
+  {h:11,top:C('#4a6478'),mid:C('#788a98'),bot:C('#aec0cc'),gt:C('#5a7080'),amb:0.65},
+  {h:14,top:C('#486075'),mid:C('#768898'),bot:C('#aabfcc'),gt:C('#586e7e'),amb:0.65},
+  {h:15.5,top:C('#2e3f65'),mid:C('#5a4a72'),bot:C('#c47858'),gt:C('#3e4e60'),amb:0.3},
+  {h:16.5,top:C('#1a2550'),mid:C('#352858'),bot:C('#8a4858'),gt:C('#1e2840'),amb:0.08},
+  {h:18,top:C('#020810'),mid:C('#050d1e'),bot:C('#091425'),gt:C('#0a1522'),amb:0},
+  {h:24,top:C('#020810'),mid:C('#050d1e'),bot:C('#091425'),gt:C('#0a1522'),amb:0},
+];
 
-  const C = h => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
-  const mix = (a,b,t) => [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t, a[2]+(b[2]-a[2])*t];
-  const rgba = (c,a=1) => `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${a})`;
-  const clamp01 = v => Math.min(1, Math.max(0, v));
-
-  // Lucht/zee-kleuren per uur: [uur, luchtBoven, luchtMidden, horizon, zeeOndiep, zeeDiep, daglicht]
-  const KEYS = [
-    [0,   '#050a14','#0a1a2e','#14304a', '#0d2338','#04101c', 0],
-    [4.8, '#050a14','#0a1a2e','#14304a', '#0d2338','#04101c', 0],
-    [6.1, '#233458','#6d5670','#e2926f', '#31485f','#0c1f30', 0.3],
-    [7.6, '#3a7cbc','#7fb2df','#f2d3a0', '#2b6b95','#113a57', 0.8],
-    [9.5, '#2b7ac2','#77b5e7','#cfe9f8', '#1e6ca4','#0e4470', 1],
-    [17,  '#2b7ac2','#77b5e7','#cfe9f8', '#1e6ca4','#0e4470', 1],
-    [19.2,'#3f689c','#c08668','#f2b475', '#3a6183','#13344d', 0.75],
-    [20.4,'#2b3560','#84586b','#dd8a5f', '#2b4a64','#0c2336', 0.35],
-    [21.6,'#0a1328','#131f3a','#264260', '#122b42','#061320', 0.06],
-    [24,  '#050a14','#0a1a2e','#14304a', '#0d2338','#04101c', 0],
-  ].map(k => ({ h:k[0], sky:[C(k[1]),C(k[2]),C(k[3])], sea:[C(k[4]),C(k[5])], amb:k[6] }));
-
-  function paletteAt(t) {
-    for (let i = 0; i < KEYS.length-1; i++) {
-      const A = KEYS[i], B = KEYS[i+1];
-      if (t >= A.h && t <= B.h) {
-        const u = (t - A.h) / ((B.h - A.h) || 1);
-        return {
-          sky: [mix(A.sky[0],B.sky[0],u), mix(A.sky[1],B.sky[1],u), mix(A.sky[2],B.sky[2],u)],
-          sea: [mix(A.sea[0],B.sea[0],u), mix(A.sea[1],B.sea[1],u)],
-          amb: A.amb + (B.amb - A.amb) * u
-        };
-      }
-    }
-    return KEYS[0];
-  }
-
-  function makeCloud(x) {
-    const s = 0.6 + Math.random() * 0.9;
-    return {
-      x, y: 20 + Math.random() * (horizonY * 0.5), s,
-      v: 2.5 + Math.random() * 5,
-      puffs: Array.from({length: 5}, () => ({
-        dx: (Math.random() - 0.5) * 140 * s,
-        dy: (Math.random() - 0.5) * 28 * s,
-        r: (16 + Math.random() * 22) * s
-      }))
-    };
-  }
-
-  function initScene() {
-    W = sceneCv.width = innerWidth;
-    H = sceneCv.height = innerHeight;
-    horizonY = Math.round(H * 0.52);
-    shoreY = Math.max(horizonY + 130, H - 95);
-    stars = Array.from({length: 120}, () => ({
-      x: Math.random()*W, y: Math.random()*horizonY*0.95,
-      r: Math.random()*1.3 + 0.4, p: Math.random()*6.28
-    }));
-    clouds = Array.from({length: 7}, () => makeCloud(Math.random()*W));
-    speckles = Array.from({length: 90}, () => ({
-      x: Math.random()*W, y: shoreY + 14 + Math.random()*(H - shoreY - 16)
-    }));
-  }
-  addEventListener('resize', initScene);
-  initScene();
-
-  // kwadratische bezier-punt
-  const qp = (p0, c, p1, s) => {
-    const u = 1 - s;
-    return [u*u*p0[0] + 2*u*s*c[0] + s*s*p1[0], u*u*p0[1] + 2*u*s*c[1] + s*s*p1[1]];
-  };
-
-  const frondLens = [1, 0.9, 1.06, 0.84, 1.02, 0.94, 1.1, 0.88];
-
-  function drawPalm(ts, shade) {
-    const ph = Math.min(H * 0.42, 310);
-    const bx = W - Math.min(W*0.12, 95), by = H - 26;
-    const sway = Math.sin(ts*0.55)*0.022 + Math.sin(ts*0.21)*0.014;
-    const top = [bx - ph*0.24 + sway*180, by - ph];
-    const ctrl = [bx - 6, by - ph*0.5];
-
-    // stam (taps toelopend)
-    const trunkC = mix([98,72,50], [30,34,46], 1 - shade);
-    for (let s = 0; s < 1; s += 0.07) {
-      const [x1,y1] = qp([bx,by], ctrl, top, s);
-      const [x2,y2] = qp([bx,by], ctrl, top, Math.min(1, s+0.09));
-      sc.strokeStyle = rgba(trunkC);
-      sc.lineWidth = 15 - s*9;
-      sc.lineCap = 'round';
-      sc.beginPath(); sc.moveTo(x1,y1); sc.lineTo(x2,y2); sc.stroke();
-    }
-
-    // kokosnoten
-    sc.fillStyle = rgba(mix([80,56,36],[20,24,34], 1-shade));
-    for (let i = 0; i < 3; i++) {
-      sc.beginPath();
-      sc.arc(top[0] + (i-1)*9, top[1] + 10, 6, 0, 7);
-      sc.fill();
-    }
-
-    // bladeren
-    const frondC = mix([46,104,60], [16,26,32], 1 - shade);
-    for (let i = 0; i < 8; i++) {
-      const a = Math.PI*1.06 - i*(Math.PI*1.12/7) + sway*1.5 + Math.sin(ts*1.1 + i*1.7)*0.016;
-      const L = ph * 0.55 * frondLens[i];
-      const end = [top[0] + Math.cos(a)*L, top[1] + Math.sin(a)*L*0.35 + L*0.55];
-      const fc  = [top[0] + Math.cos(a)*L*0.6, top[1] + Math.sin(a)*L*0.2 - L*0.16];
-      sc.strokeStyle = rgba(frondC);
-      sc.lineWidth = 2.6; sc.lineCap = 'round';
-      sc.beginPath(); sc.moveTo(top[0], top[1]); sc.quadraticCurveTo(fc[0], fc[1], end[0], end[1]); sc.stroke();
-      // blaadjes langs de nerf
-      sc.lineWidth = 1.5;
-      for (let s = 0.18; s <= 0.97; s += 0.065) {
-        const p = qp(top, fc, end, s);
-        const p2 = qp(top, fc, end, Math.min(1, s+0.02));
-        const tx = p2[0]-p[0], ty = p2[1]-p[1];
-        const tl = Math.hypot(tx,ty) || 1;
-        const nx = -ty/tl, ny = tx/tl;
-        const ll = 17 * (1 - s*0.62) * (ph/310);
-        const bkx = -tx/tl * ll * 0.4, bky = -ty/tl * ll * 0.4;
-        sc.beginPath();
-        sc.moveTo(p[0], p[1]); sc.lineTo(p[0] + nx*ll + bkx, p[1] + ny*ll + bky);
-        sc.moveTo(p[0], p[1]); sc.lineTo(p[0] - nx*ll*0.9 + bkx, p[1] - ny*ll*0.9 + bky);
-        sc.stroke();
-      }
+function getSky(hour){
+  for(let i=0;i<KEYS.length-1;i++){
+    const a=KEYS[i],b=KEYS[i+1];
+    if(hour>=a.h&&hour<=b.h){
+      const t=(hour-a.h)/(b.h-a.h);
+      return{top:lerpc(a.top,b.top,t),mid:lerpc(a.mid,b.mid,t),bot:lerpc(a.bot,b.bot,t),gt:lerpc(a.gt,b.gt,t),amb:a.amb+(b.amb-a.amb)*t};
     }
   }
+  return KEYS[0];
+}
 
-  function drawProps(shade) {
-    const sandBottom = H - 20;
-    const px = Math.min(W * 0.15, 170);
+let stars=[],snowflakes=[],clouds=[],winLights=[];
 
-    // schaduwvlekken
-    sc.fillStyle = 'rgba(60,45,25,0.18)';
-    sc.beginPath(); sc.ellipse(px + 12, sandBottom - 2, 60, 9, 0, 0, 7); sc.fill();
+function initScene(){
+  stars=[];
+  for(let i=0;i<200;i++) stars.push({x:Math.random()*W,y:Math.random()*H*0.65,r:Math.random()*1.4+0.3,tw:Math.random()*Math.PI*2,ts:0.4+Math.random()*0.6});
+  snowflakes=[];
+  for(let i=0;i<200;i++) snowflakes.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*2.5+0.8,vx:(Math.random()-0.5)*0.4,vy:0.4+Math.random()*0.8,alpha:0.4+Math.random()*0.5,sw:Math.random()*Math.PI*2,ss:0.3+Math.random()*0.4});
+  clouds=[];
+  for(let i=0;i<7;i++) clouds.push({x:Math.random()*W*1.5-W*0.25,y:H*0.05+Math.random()*H*0.18,w:W*(0.1+Math.random()*0.15),speed:0.08+Math.random()*0.12,alpha:0.05+Math.random()*0.1});
+  winLights=[];
+}
 
-    // parasol
-    sc.save();
-    sc.translate(px, sandBottom);
-    sc.rotate(-0.1);
-    sc.strokeStyle = rgba(mix([150,120,90],[40,42,52], 1-shade));
-    sc.lineWidth = 4;
-    sc.beginPath(); sc.moveTo(0, 0); sc.lineTo(6, -92); sc.stroke();
-    const cols = [mix([212,70,66],[54,26,32],1-shade), mix([245,240,228],[62,66,80],1-shade)];
-    for (let i = 0; i < 6; i++) {
-      const a0 = Math.PI + i*(Math.PI/6), a1 = a0 + Math.PI/6;
-      sc.fillStyle = rgba(cols[i % 2]);
-      sc.beginPath();
-      sc.moveTo(6, -88);
-      sc.arc(6, -88, 58, a0, a1);
-      sc.closePath(); sc.fill();
-    }
-    sc.fillStyle = rgba(cols[0]);
-    sc.beginPath(); sc.arc(6, -92, 4, 0, 7); sc.fill();
-    sc.restore();
+const urlH=new URLSearchParams(location.search).get('t');
+function getHour(){if(urlH!==null)return parseFloat(urlH);const n=new Date();return n.getHours()+n.getMinutes()/60;}
 
-    // strandstoel
-    const chx = px + 92, chy = sandBottom - 4;
-    const teal = mix([40,120,130],[24,40,52], 1-shade);
-    sc.strokeStyle = rgba(teal); sc.lineWidth = 5; sc.lineCap = 'round';
-    sc.beginPath();
-    sc.moveTo(chx, chy - 14); sc.lineTo(chx + 34, chy - 14);
-    sc.moveTo(chx, chy - 14); sc.lineTo(chx - 14, chy - 36);
-    sc.stroke();
-    sc.lineWidth = 3;
-    sc.beginPath();
-    sc.moveTo(chx + 2, chy - 14); sc.lineTo(chx - 4, chy);
-    sc.moveTo(chx + 30, chy - 14); sc.lineTo(chx + 36, chy);
-    sc.stroke();
+function drawSky(sk){
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,rgb(sk.top));grd.addColorStop(0.55,rgb(sk.mid));grd.addColorStop(1,rgb(sk.bot));
+  ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+}
 
-    // strandbal
-    const bx2 = chx + 58, by2 = sandBottom - 10;
-    sc.fillStyle = rgba(mix([244,240,230],[70,74,88],1-shade));
-    sc.beginPath(); sc.arc(bx2, by2, 9, 0, 7); sc.fill();
-    sc.fillStyle = rgba(mix([214,69,69],[60,30,36],1-shade));
-    sc.beginPath(); sc.arc(bx2, by2, 9, -0.6, 1.1); sc.lineTo(bx2, by2); sc.fill();
-    sc.fillStyle = rgba(mix([58,110,200],[26,36,60],1-shade));
-    sc.beginPath(); sc.arc(bx2, by2, 9, 1.9, 3.6); sc.lineTo(bx2, by2); sc.fill();
+function drawStars(sk,ts){
+  const a=Math.max(0,1-sk.amb*5);if(a<0.01)return;
+  stars.forEach(s=>{const tw=Math.sin(ts*s.ts+s.tw);ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+(a*(0.4+tw*0.5))+')';ctx.fill();});
+}
 
-    // handdoek
-    sc.save();
-    sc.translate(px - 70, sandBottom - 8);
-    sc.rotate(0.06);
-    const tc = [mix([240,150,60],[70,50,36],1-shade), mix([245,240,228],[64,68,82],1-shade)];
-    for (let i = 0; i < 4; i++) {
-      sc.fillStyle = rgba(tc[i % 2]);
-      sc.fillRect(-24, -9 + i*5, 52, 5);
-    }
-    sc.restore();
-  }
-
-  let lastFrame = 0;
-
-  function drawScene(ts) {
-    const now = new Date();
-    let t = FORCE_T !== null ? FORCE_T : now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
-    const P = paletteAt(t);
-    const shade = 0.3 + 0.7 * P.amb;
-    const dt = Math.min(0.1, ts - lastFrame); lastFrame = ts;
-
-    // === LUCHT ===
-    let g = sc.createLinearGradient(0, 0, 0, horizonY);
-    g.addColorStop(0, rgba(P.sky[0]));
-    g.addColorStop(0.6, rgba(P.sky[1]));
-    g.addColorStop(1, rgba(P.sky[2]));
-    sc.fillStyle = g;
-    sc.fillRect(0, 0, W, horizonY + 1);
-
-    // === STERREN ===
-    const starA = Math.max(0, 1 - P.amb * 2.4);
-    if (starA > 0.02) {
-      sc.fillStyle = '#dfe8f5';
-      for (const s of stars) {
-        sc.globalAlpha = starA * (0.4 + 0.6 * Math.abs(Math.sin(ts*1.6 + s.p)));
-        sc.beginPath(); sc.arc(s.x, s.y, s.r, 0, 7); sc.fill();
-      }
-      sc.globalAlpha = 1;
-    }
-
-    // === ZON ===
-    let glintX = null, glintCol = null, glintStr = 0;
-    const df = (t - 6.1) / (20.6 - 6.1);
-    if (df > -0.02 && df < 1.02) {
-      const elev = Math.sin(Math.PI * clamp01(df));
-      const sx = W * (0.14 + 0.72 * df);
-      const sy = horizonY - 8 - (horizonY - 70) * elev;
-      const warm = mix([255,236,190], [255,148,76], 1 - Math.min(1, elev*1.6));
-      const glow = sc.createRadialGradient(sx, sy, 0, sx, sy, 130);
-      glow.addColorStop(0, rgba(warm, 0.9));
-      glow.addColorStop(0.25, rgba(warm, 0.35));
-      glow.addColorStop(1, rgba(warm, 0));
-      sc.fillStyle = glow;
-      sc.fillRect(sx-140, sy-140, 280, 280);
-      sc.fillStyle = rgba(mix(warm, [255,255,255], 0.55));
-      sc.beginPath(); sc.arc(sx, sy, 16 + 7*(1-elev), 0, 7); sc.fill();
-      glintX = sx; glintCol = warm; glintStr = (0.4 + 0.6*(1-elev*0.45)) * Math.min(1, elev*3 + 0.15);
-    }
-
-    // === MAAN ===
-    const nf = ((t + 24 - 21) % 24) / 9.2;
-    if (nf >= 0 && nf <= 1 && P.amb < 0.5) {
-      const elev = Math.sin(Math.PI * nf);
-      const mx = W * (0.2 + 0.6 * nf);
-      const my = horizonY - 60 - (horizonY * 0.45) * elev;
-      const mglow = sc.createRadialGradient(mx, my, 0, mx, my, 90);
-      mglow.addColorStop(0, 'rgba(200,215,240,0.35)');
-      mglow.addColorStop(1, 'rgba(200,215,240,0)');
-      sc.fillStyle = mglow;
-      sc.fillRect(mx-95, my-95, 190, 190);
-      sc.fillStyle = '#e6ebf2';
-      sc.beginPath(); sc.arc(mx, my, 20, 0, 7); sc.fill();
-      // maria (donkere vlekken) voor een realistisch maanoppervlak
-      sc.fillStyle = 'rgba(155,168,190,0.5)';
-      sc.beginPath(); sc.arc(mx - 6, my - 4, 5, 0, 7); sc.fill();
-      sc.beginPath(); sc.arc(mx + 4, my + 7, 3.5, 0, 7); sc.fill();
-      sc.beginPath(); sc.arc(mx + 7, my - 8, 2.5, 0, 7); sc.fill();
-      sc.fillStyle = rgba(P.sky[0], 0.85);
-      sc.beginPath(); sc.arc(mx + 14, my - 7, 16, 0, 7); sc.fill();
-      glintX = mx; glintCol = [205,220,242]; glintStr = 0.35 * (1 - P.amb*1.5);
-    }
-
-    // === WOLKEN ===
-    const cloudBase = mix([255,255,255], P.sky[2], 0.22);
-    const cloudA = 0.1 + 0.55 * P.amb;
-    for (const cl of clouds) {
-      cl.x += cl.v * dt * 3;
-      if (cl.x > W + 220) { Object.assign(cl, makeCloud(-200)); }
-      for (const p of cl.puffs) {
-        const pg = sc.createRadialGradient(cl.x+p.dx, cl.y+p.dy, 0, cl.x+p.dx, cl.y+p.dy, p.r);
-        pg.addColorStop(0, rgba(cloudBase, cloudA));
-        pg.addColorStop(1, rgba(cloudBase, 0));
-        sc.fillStyle = pg;
-        sc.beginPath(); sc.arc(cl.x+p.dx, cl.y+p.dy, p.r, 0, 7); sc.fill();
-      }
-    }
-
-    // === ZAND ===
-    const sandC = mix([230,211,168], [46,50,66], 1 - P.amb*0.92);
-    const sandDark = mix(sandC, [0,0,0], 0.22);
-    g = sc.createLinearGradient(0, shoreY-40, 0, H);
-    g.addColorStop(0, rgba(sandDark));
-    g.addColorStop(0.4, rgba(sandC));
-    g.addColorStop(1, rgba(sandC));
-    sc.fillStyle = g;
-    sc.fillRect(0, shoreY - 45, W, H - shoreY + 45);
-    // natte zandband
-    sc.fillStyle = rgba(mix(sandC, [70,60,45], 0.4), 0.55);
-    sc.fillRect(0, shoreY - 26, W, 48);
-
-    // === ZEE ===
-    const wash = Math.sin(ts*0.5)*12 + Math.sin(ts*0.23)*5;
-    const shoreline = x => shoreY + wash + Math.sin(x*0.01 + ts*0.7)*5 + Math.sin(x*0.023 - ts*0.5)*3;
-    g = sc.createLinearGradient(0, horizonY, 0, shoreY + 26);
-    g.addColorStop(0, rgba(mix(P.sea[0], P.sky[2], 0.5)));
-    g.addColorStop(0.12, rgba(P.sea[0]));
-    g.addColorStop(1, rgba(P.sea[1], 0.94));
-    sc.beginPath();
-    sc.moveTo(0, horizonY);
-    sc.lineTo(W, horizonY);
-    for (let x = W; x >= 0; x -= 10) sc.lineTo(x, shoreline(x));
-    sc.closePath();
-    sc.fillStyle = g;
-    sc.fill();
-
-    // === GLINSTERING (zon/maan-spoor op het water) ===
-    if (glintX !== null && glintStr > 0.02) {
-      for (let y = horizonY + 5; y < shoreY - 8; y += 5) {
-        const f = (y - horizonY) / (shoreY - horizonY);
-        const w = 8 + f * 90;
-        const flick = Math.sin(y*13.7 + ts*6) + Math.sin(y*7.3 - ts*4.2);
-        const a = Math.max(0, 0.03 + 0.09*flick/2) * (1 - f*0.45) * glintStr;
-        if (a <= 0.004) continue;
-        const dx = Math.sin(y*3.1 + ts*2)*w*0.3;
-        sc.fillStyle = rgba(glintCol, a);
-        sc.fillRect(glintX - w/2 + dx, y, w*(0.4 + 0.3*Math.abs(flick)/2), 2.2);
-      }
-    }
-
-    // === GOLFLIJNEN ===
-    for (let k = 0; k < 4; k++) {
-      const baseY = horizonY + (shoreY - horizonY) * (0.16 + 0.21*k);
-      const amp = 1.5 + k*2.4;
-      sc.beginPath();
-      for (let x = 0; x <= W; x += 8) {
-        const y = baseY + Math.sin(x*0.012/(k*0.3+1) + ts*(0.7 + k*0.25) + k*2)*amp
-                        + Math.sin(x*0.03 + ts*1.3 + k)*amp*0.4;
-        x === 0 ? sc.moveTo(x,y) : sc.lineTo(x,y);
-      }
-      sc.strokeStyle = `rgba(255,255,255,${(0.05 + 0.035*k) * (0.35 + 0.65*P.amb)})`;
-      sc.lineWidth = 1.2 + k*0.7;
-      sc.stroke();
-    }
-
-    // === ZEILBOOT ===
-    const cycle = W + 340;
-    const prog = (ts * 11) % cycle;
-    const lap = Math.floor((ts * 11) / cycle);
-    const bx = lap % 2 === 0 ? prog - 170 : W + 170 - prog;
-    const bob = Math.sin(ts*1.4)*1.3;
-    const byy = horizonY - 1 + bob;
-    const dirF = lap % 2 === 0 ? 1 : -1;
-    sc.fillStyle = `rgba(30,36,48,${0.55 + 0.35*P.amb})`;
-    sc.beginPath();
-    sc.moveTo(bx - 24, byy); sc.lineTo(bx + 24, byy);
-    sc.lineTo(bx + 16, byy + 8); sc.lineTo(bx - 16, byy + 8);
-    sc.closePath(); sc.fill();
-    sc.strokeStyle = `rgba(30,36,48,${0.5 + 0.4*P.amb})`;
-    sc.lineWidth = 2;
-    sc.beginPath(); sc.moveTo(bx + 2*dirF, byy); sc.lineTo(bx + 2*dirF, byy - 30); sc.stroke();
-    sc.fillStyle = rgba(mix([240,238,230], [90,96,116], 1 - P.amb), 0.95);
-    sc.beginPath();
-    sc.moveTo(bx + 3*dirF, byy - 3); sc.lineTo(bx + 3*dirF, byy - 29); sc.lineTo(bx + 20*dirF, byy - 7);
-    sc.closePath(); sc.fill();
-    sc.beginPath();
-    sc.moveTo(bx - 1*dirF, byy - 4); sc.lineTo(bx - 1*dirF, byy - 23); sc.lineTo(bx - 14*dirF, byy - 6);
-    sc.closePath(); sc.fill();
-    if (P.amb < 0.3) {
-      sc.fillStyle = 'rgba(255,210,120,0.9)';
-      sc.beginPath(); sc.arc(bx + 4*dirF, byy - 6, 1.6, 0, 7); sc.fill();
-    }
-    // spiegeling
-    sc.fillStyle = `rgba(20,26,38,${0.12 + 0.1*P.amb})`;
-    sc.beginPath(); sc.ellipse(bx, byy + 11, 22, 3, 0, 0, 7); sc.fill();
-
-    // === BRANDING / SCHUIMRAND ===
-    sc.beginPath();
-    for (let x = 0; x <= W; x += 10) {
-      const y = shoreline(x);
-      x === 0 ? sc.moveTo(x,y) : sc.lineTo(x,y);
-    }
-    sc.strokeStyle = `rgba(255,255,255,${0.35 + 0.35*P.amb})`;
-    sc.lineWidth = 2.5;
-    sc.stroke();
-    // terugtrekkend schuimspoor
-    const wash2 = Math.sin((ts-1.7)*0.5)*12 + Math.sin((ts-1.7)*0.23)*5;
-    sc.beginPath();
-    for (let x = 0; x <= W; x += 10) {
-      const y = shoreY + wash2 + Math.sin(x*0.01 + (ts-1.7)*0.7)*5 + Math.sin(x*0.023 - (ts-1.7)*0.5)*3;
-      x === 0 ? sc.moveTo(x,y) : sc.lineTo(x,y);
-    }
-    sc.strokeStyle = `rgba(255,255,255,${0.08 + 0.08*P.amb})`;
-    sc.lineWidth = 4;
-    sc.stroke();
-
-    // === ZANDDETAIL ===
-    sc.fillStyle = `rgba(90,70,45,${0.05 + 0.07*P.amb})`;
-    for (const sp of speckles) {
-      sc.fillRect(sp.x, sp.y, 2, 1.4);
-    }
-
-    // === STRANDSPULLEN & PALM ===
-    drawProps(shade);
-    drawPalm(ts, shade);
-
-    // === MEEUWEN ===
-    if (P.amb > 0.35 && Math.random() < dt / 9) {
-      const fromLeft = Math.random() < 0.5;
-      const n = 1 + Math.floor(Math.random()*3);
-      for (let i = 0; i < n; i++) {
-        birds.push({
-          x: fromLeft ? -30 - i*26 : W + 30 + i*26,
-          y: 40 + Math.random()*horizonY*0.55 + i*12,
-          vx: (fromLeft ? 1 : -1) * (26 + Math.random()*22),
-          size: 7 + Math.random()*6,
-          phase: Math.random()*6.28
-        });
-      }
-    }
-    sc.lineCap = 'round';
-    for (let i = birds.length-1; i >= 0; i--) {
-      const b = birds[i];
-      b.x += b.vx * dt;
-      b.y += Math.sin(ts*1.2 + b.phase)*0.25;
-      if (b.x < -60 || b.x > W + 60) { birds.splice(i,1); continue; }
-      const flap = Math.sin(ts*7 + b.phase);
-      const dy = flap * b.size * 0.55;
-      sc.strokeStyle = `rgba(25,35,48,${0.4 + 0.4*P.amb})`;
-      sc.lineWidth = 1.8;
-      sc.beginPath();
-      sc.moveTo(b.x - b.size, b.y - dy);
-      sc.quadraticCurveTo(b.x - b.size*0.25, b.y + 2, b.x, b.y);
-      sc.quadraticCurveTo(b.x + b.size*0.25, b.y + 2, b.x + b.size, b.y - dy);
-      sc.stroke();
-    }
-  }
-
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reducedMotion) {
-    drawScene(0.001);
-    setInterval(() => drawScene(performance.now()/1000), 30000);
-  } else {
-    (function frame(ms) {
-      drawScene(ms/1000);
-      requestAnimationFrame(frame);
-    })(0);
-  }
-
-  /* ============================================================
-     COUNTDOWN
-     ============================================================ */
-  const now0 = new Date();
-  let year = now0.getFullYear();
-  let target = new Date(year, 6, 31, 0, 0, 0); // 31 juli
-  if (now0 > new Date(year, 7, 31)) target = new Date(year + 1, 6, 31);
-
-  const PROGRESS_KEY = 'zwierCountdownStart';
-  let progressStart;
-  try {
-    progressStart = localStorage.getItem(PROGRESS_KEY);
-    if (!progressStart) {
-      progressStart = now0.getTime();
-      localStorage.setItem(PROGRESS_KEY, progressStart);
-    }
-  } catch (e) { progressStart = now0.getTime(); }
-  progressStart = Number(progressStart);
-
-  const quotes = [
-    "☕ Nog even doorbikkelen, dan liggen de voeten omhoog!",
-    "🌴 Elke werkdag is er één dichter bij het strand.",
-    "😎 Zonnebrillen alvast gepoetst, Zwier / Juni?",
-    "🧳 De koffer kan bijna van zolder!",
-    "🍹 De cocktails staan al bijna koud...",
-    "⏰ Tik tak... de vakantie komt eraan!",
-    "💼 Werk hard nu, chill hard straks.",
-    "🏖️ Het zand wacht op jullie, Zwier / Juni!",
-    "🛫 Bijna tijd om de out-of-office aan te zetten!",
-    "🥳 Het weekend duurt straks wekenlang!"
+function drawAurora(ts,amb){
+  if(amb>0.15)return;
+  const gy=H*0.72;
+  const bands=[
+    {base:0.10,amp:0.045,freq:2.4,phase:ts*0.00018,col:[0,255,130],op:0.14},
+    {base:0.17,amp:0.055,freq:1.9,phase:ts*0.00013+1.5,col:[60,180,255],op:0.09},
+    {base:0.07,amp:0.03,freq:3.1,phase:ts*0.0002+0.8,col:[120,80,255],op:0.08},
+    {base:0.22,amp:0.04,freq:1.5,phase:ts*0.00015+3.0,col:[0,220,180],op:0.06},
   ];
+  bands.forEach(b=>{
+    const oy=gy*(b.base+b.amp*Math.sin(b.freq+b.phase));
+    const grd=ctx.createLinearGradient(0,oy-H*0.08,0,oy+H*0.04);
+    grd.addColorStop(0,'rgba('+b.col.join(',')+',0)');
+    grd.addColorStop(0.5,'rgba('+b.col.join(',')+','+b.op+')');
+    grd.addColorStop(1,'rgba('+b.col.join(',')+',0)');
+    ctx.save();
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=4){const wy=oy+Math.sin(x/W*b.freq*Math.PI*2+b.phase)*H*b.amp;x===0?ctx.moveTo(x,wy):ctx.lineTo(x,wy);}
+    ctx.lineTo(W,oy+H*0.05);ctx.lineTo(0,oy+H*0.05);ctx.closePath();
+    ctx.fillStyle=grd;ctx.fill();ctx.restore();
+  });
+}
 
-  function workdaysUntil(from, to) {
-    let count = 0;
-    const d = new Date(from.getFullYear(), from.getMonth(), from.getDate());
-    const end = new Date(to.getFullYear(), to.getMonth(), to.getDate());
-    while (d < end) {
-      const dow = d.getDay();
-      if (dow !== 0 && dow !== 6) count++;
-      d.setDate(d.getDate() + 1);
+function drawMoon(sk,ts){
+  const a=Math.max(0,1-sk.amb*4);if(a<0.01)return;
+  const mx=W*0.75,my=H*0.14;
+  ctx.save();
+  const mg=ctx.createRadialGradient(mx,my,0,mx,my,H*0.08);
+  mg.addColorStop(0,'rgba(220,220,180,'+(a*0.25)+')');mg.addColorStop(1,'transparent');
+  ctx.fillStyle=mg;ctx.beginPath();ctx.arc(mx,my,H*0.08,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(mx,my,H*0.038,0,Math.PI*2);ctx.fillStyle=rgb([220,215,185],a);ctx.fill();
+  [[0.3,0.2,0.012],[-.25,0.1,0.009],[0.1,-.3,0.007]].forEach(([dx,dy,r])=>{ctx.beginPath();ctx.arc(mx+dx*H*0.038,my+dy*H*0.038,r*H,0,Math.PI*2);ctx.fillStyle='rgba(170,165,145,'+(a*0.35)+')';ctx.fill();});
+  ctx.restore();
+}
+
+function drawSun(sk){
+  if(sk.amb<0.1)return;
+  const sx=W*0.3,sy=H*0.22,sr=H*0.025;
+  ctx.save();
+  const sg=ctx.createRadialGradient(sx,sy,0,sx,sy,sr*4);
+  sg.addColorStop(0,'rgba(255,220,160,'+(sk.amb*0.4)+')');sg.addColorStop(1,'transparent');
+  ctx.fillStyle=sg;ctx.beginPath();ctx.arc(sx,sy,sr*4,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(sx,sy,sr,0,Math.PI*2);ctx.fillStyle='rgba(255,210,140,'+(sk.amb*0.6)+')';ctx.fill();
+  ctx.restore();
+}
+
+function drawClouds(){
+  clouds.forEach(c=>{
+    c.x+=c.speed;if(c.x>W+c.w)c.x=-c.w;
+    ctx.save();
+    for(let i=0;i<4;i++){
+      const cx2=c.x+i*c.w*0.3,cy2=c.y+(i%2)*c.w*0.1,r=c.w*(0.22+i*0.04);
+      const cg=ctx.createRadialGradient(cx2,cy2,0,cx2,cy2,r);
+      cg.addColorStop(0,'rgba(160,175,190,'+(c.alpha*1.4)+')');cg.addColorStop(1,'transparent');
+      ctx.fillStyle=cg;ctx.beginPath();ctx.arc(cx2,cy2,r,0,Math.PI*2);ctx.fill();
     }
-    return count;
-  }
+    ctx.restore();
+  });
+}
 
-  function pad(n) { return String(n).padStart(2, '0'); }
+function drawGround(sk){
+  const gy=H*0.72;
+  ctx.save();ctx.beginPath();ctx.moveTo(0,H);ctx.lineTo(0,gy);
+  for(let x=0;x<=W;x+=W*0.08) ctx.quadraticCurveTo(x+W*0.04,gy-H*0.015,x+W*0.08,gy);
+  ctx.lineTo(W,H);ctx.closePath();
+  const gg=ctx.createLinearGradient(0,gy,0,H);
+  gg.addColorStop(0,rgb([210,225,235]));gg.addColorStop(0.3,rgb([185,205,220]));gg.addColorStop(1,rgb([140,165,185]));
+  ctx.fillStyle=gg;ctx.fill();ctx.restore();
+}
 
-  let vacationStarted = false;
-  let lastSec = -1;
-
-  function tick() {
-    const now = new Date();
-    const diff = target - now;
-
-    if (diff <= 0) {
-      if (!vacationStarted) startVacation();
-      return;
-    }
-
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor(diff / 3600000) % 24;
-    const mins = Math.floor(diff / 60000) % 60;
-    const secs = Math.floor(diff / 1000) % 60;
-
-    $('d').textContent = days;
-    $('h').textContent = pad(hours);
-    $('m').textContent = pad(mins);
-    $('s').textContent = pad(secs);
-
-    if (secs !== lastSec && !reducedMotion) {
-      lastSec = secs;
-      const el = $('s');
-      el.classList.remove('pop');
-      void el.offsetWidth;
-      el.classList.add('pop');
-    }
-
-    const wd = workdaysUntil(now, target);
-    $('workdays').innerHTML = wd === 0
-      ? "🎉 <b>Geen werkdagen meer!</b> Alleen nog even wachten..."
-      : `💼 Nog maar <b>${wd}</b> werkdag${wd === 1 ? '' : 'en'} te gaan!`;
-
-    const total = target - progressStart;
-    const done = now - progressStart;
-    const pct = Math.min(100, Math.max(0, (done / total) * 100));
-    $('progressFill').style.width = pct + '%';
-    $('progressPct').textContent = pct.toFixed(1) + '% van het wachten is voorbij';
-  }
-
-  function rotateQuote() {
-    const q = quotes[Math.floor(Date.now() / 10000) % quotes.length];
-    const el = $('quote');
-    if (el.textContent === q) return;
-    el.style.opacity = '0';
-    setTimeout(() => { el.textContent = q; el.style.opacity = '1'; }, 450);
-  }
-
-  function startVacation() {
-    vacationStarted = true;
-    $('countdown').style.display = 'none';
-    $('workdays').style.display = 'none';
-    $('progressWrap').style.display = 'none';
-    $('quote').style.display = 'none';
-    document.querySelector('header').style.display = 'none';
-    $('vacationMsg').style.display = 'block';
-    launchConfetti();
-  }
-
-  function launchConfetti() {
-    const canvas = $('confetti');
-    const ctx = canvas.getContext('2d');
-    canvas.width = innerWidth; canvas.height = innerHeight;
-    const colors = ['#fbbf24','#fb923c','#f472b6','#34d399','#60a5fa','#fde047'];
-    const parts = Array.from({length: 220}, () => ({
-      x: Math.random() * canvas.width,
-      y: -20 - Math.random() * canvas.height,
-      w: 6 + Math.random() * 8,
-      h: 10 + Math.random() * 8,
-      c: colors[Math.floor(Math.random() * colors.length)],
-      vy: 2 + Math.random() * 3,
-      vx: -1.5 + Math.random() * 3,
-      rot: Math.random() * Math.PI,
-      vr: -0.1 + Math.random() * 0.2
-    }));
-    (function anim() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const p of parts) {
-        p.y += p.vy; p.x += p.vx; p.rot += p.vr;
-        if (p.y > canvas.height + 20) { p.y = -20; p.x = Math.random() * canvas.width; }
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.fillStyle = p.c;
-        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-        ctx.restore();
+function computeWindowLights(gy){
+  winLights=[];
+  const zones=[
+    {x:W*0.31,y:gy-H*0.22,w:W*0.02,h:H*0.15,cols:3,rows:7},
+    {x:W*0.36,y:gy-H*0.22,w:W*0.02,h:H*0.15,cols:3,rows:7},
+    {x:W*0.52,y:gy-H*0.13,w:W*0.03,h:H*0.1,cols:3,rows:4},
+    {x:W*0.72,y:gy-H*0.11,w:W*0.015,h:H*0.09,cols:2,rows:4},
+    {x:W*0.07,y:gy-H*0.11,w:W*0.015,h:H*0.09,cols:2,rows:4},
+  ];
+  zones.forEach((z,zi)=>{
+    const cw=z.w/z.cols,rh=z.h/z.rows;
+    for(let r=0;r<z.rows;r++) for(let c=0;c<z.cols;c++){
+      const idx=zi*100+r*10+c;
+      if(((idx*31+r*7+c*13)%100)<55){
+        winLights.push({x:z.x+c*cw+cw*0.2,y:z.y+r*rh+rh*0.2,w:cw*0.6,h:rh*0.6,warm:((idx*17)%3)===0});
       }
-      requestAnimationFrame(anim);
-    })();
-  }
+    }
+  });
+}
 
-  tick();
-  rotateQuote();
-  $('quote').style.opacity = '1';
-  setInterval(tick, 1000);
-  setInterval(rotateQuote, 10000);
+function drawCity(sk,amb){
+  const gy=H*0.72;
+  if(winLights.length===0) computeWindowLights(gy);
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0,gy);
+  ctx.lineTo(W*0.02,gy-H*0.04);ctx.lineTo(W*0.04,gy-H*0.07);ctx.lineTo(W*0.06,gy-H*0.07);
+  ctx.lineTo(W*0.07,gy-H*0.11);ctx.lineTo(W*0.08,gy-H*0.11);ctx.lineTo(W*0.09,gy-H*0.08);
+  ctx.lineTo(W*0.11,gy-H*0.08);ctx.lineTo(W*0.12,gy-H*0.05);ctx.lineTo(W*0.14,gy-H*0.05);
+  ctx.lineTo(W*0.3,gy-H*0.07);
+  ctx.lineTo(W*0.31,gy-H*0.22);ctx.lineTo(W*0.33,gy-H*0.22);ctx.lineTo(W*0.33,gy-H*0.07);
+  ctx.lineTo(W*0.35,gy-H*0.07);
+  ctx.lineTo(W*0.36,gy-H*0.22);ctx.lineTo(W*0.38,gy-H*0.22);ctx.lineTo(W*0.38,gy-H*0.07);
+  ctx.lineTo(W*0.44,gy-H*0.07);
+  ctx.lineTo(W*0.45,gy-H*0.14);ctx.lineTo(W*0.455,gy-H*0.20);ctx.lineTo(W*0.46,gy-H*0.14);
+  ctx.lineTo(W*0.47,gy-H*0.07);
+  ctx.lineTo(W*0.52,gy-H*0.09);ctx.lineTo(W*0.54,gy-H*0.09);ctx.lineTo(W*0.55,gy-H*0.13);
+  ctx.lineTo(W*0.57,gy-H*0.13);ctx.lineTo(W*0.58,gy-H*0.09);
+  ctx.lineTo(W*0.63,gy-H*0.09);
+  ctx.lineTo(W*0.635,gy-H*0.26);ctx.lineTo(W*0.64,gy-H*0.26);ctx.lineTo(W*0.645,gy-H*0.09);
+  ctx.lineTo(W*0.70,gy-H*0.06);ctx.lineTo(W*0.72,gy-H*0.11);ctx.lineTo(W*0.73,gy-H*0.11);
+  ctx.lineTo(W*0.74,gy-H*0.08);ctx.lineTo(W*0.82,gy-H*0.08);ctx.lineTo(W*0.84,gy-H*0.12);
+  ctx.lineTo(W*0.85,gy-H*0.12);ctx.lineTo(W*0.86,gy-H*0.08);ctx.lineTo(W*0.9,gy-H*0.07);
+  ctx.lineTo(W,gy-H*0.04);ctx.lineTo(W,gy);ctx.closePath();
+  ctx.fillStyle=rgb(sk.gt);ctx.fill();
+  const btx=W*0.638,bty=gy-H*0.26;
+  const bc=[Math.round(sk.gt[0]*1.3),Math.round(sk.gt[1]*1.3),Math.round(sk.gt[2]*1.5)];
+  ctx.strokeStyle=rgb(bc,0.6);ctx.lineWidth=1;
+  for(let i=0;i<12;i++){
+    ctx.beginPath();ctx.moveTo(btx,bty);ctx.lineTo(W*(0.60+i*0.012),gy-H*0.07);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(btx+W*0.004,bty);ctx.lineTo(W*(0.648+i*0.011),gy-H*0.07);ctx.stroke();
+  }
+  ctx.fillStyle=rgb(bc);ctx.fillRect(W*0.59,gy-H*0.07,W*0.14,H*0.008);
+  ctx.restore();
+  const wa=Math.max(0,0.9-amb*2.5);
+  if(wa>0.01) winLights.forEach(w=>{
+    ctx.fillStyle=w.warm?'rgba(255,220,140,'+(wa*0.8)+')':`rgba(190,220,255,${wa*0.6})`;
+    ctx.fillRect(w.x,w.y,w.w,w.h);
+  });
+}
+
+function drawWater(sk,ts){
+  const gy=H*0.72,ry=gy+H*0.03;
+  ctx.save();
+  const wg=ctx.createLinearGradient(0,ry,0,ry+H*0.08);
+  wg.addColorStop(0,rgb(lerpc(sk.bot,[20,40,80],0.4),0.7));wg.addColorStop(1,rgb(sk.bot,0.3));
+  ctx.fillStyle=wg;ctx.fillRect(0,ry,W,H*0.08);
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+  for(let i=0;i<5;i++){const ry2=ry+H*0.015*(i+1),off=Math.sin(ts*0.001+i)*W*0.02;ctx.beginPath();ctx.moveTo(W*0.3+off,ry2);ctx.lineTo(W*0.7+off,ry2);ctx.stroke();}
+  ctx.restore();
+}
+
+function drawSnow(){
+  snowflakes.forEach(s=>{
+    s.x+=s.vx+Math.sin(s.sw)*0.3;s.sw+=s.ss*0.01;s.y+=s.vy;
+    if(s.y>H+5)s.y=-5;if(s.x<-5)s.x=W+5;if(s.x>W+5)s.x=-5;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+s.alpha+')';ctx.fill();
+  });
+}
+
+function drawGirl(gx,groundY,dir,amb,ts){
+  const dim=0.3+amb*0.65;
+  const tint=([r,g,b])=>[Math.round(r*dim),Math.round(g*dim),Math.round(b*dim)];
+  const isLeft=dir===1;
+  const c=tint(isLeft?[0,90,160]:[200,155,0]);
+  const s2=tint(isLeft?[200,155,0]:[0,90,160]);
+  const hat=tint(isLeft?[200,155,0]:[0,90,160]);
+  const bt=tint([30,30,40]);
+  const hr=tint([235,195,80]);
+  const sk2=tint([240,195,160]);
+  const h=Math.min(H*0.22,Math.min(W*0.14,170));
+  const waveAmt=dir*(0.4+Math.sin(ts*0.001*0.9)*0.12);
+  const windSway=Math.sin(ts*0.001*0.3)*h*0.02*dir;
+  ctx.save();
+  ctx.translate(gx+windSway,groundY);
+  ctx.beginPath();ctx.ellipse(0,0,h*0.08,h*0.02,0,0,Math.PI*2);ctx.fillStyle='rgba(0,0,0,0.25)';ctx.fill();
+  ctx.fillStyle=rgb(bt);
+  ctx.fillRect(-h*0.09*dir,-h*0.14,h*0.07,h*0.14);ctx.fillRect(h*0.02*dir,-h*0.14,h*0.07,h*0.14);
+  ctx.fillStyle=rgb(tint([40,50,70]));
+  ctx.fillRect(-h*0.085*dir,-h*0.28,h*0.065,h*0.14);ctx.fillRect(h*0.022*dir,-h*0.28,h*0.065,h*0.14);
+  ctx.fillStyle=rgb(c);
+  ctx.beginPath();
+  if(ctx.roundRect) ctx.roundRect(-h*0.14,-h*0.68,h*0.28,h*0.42,h*0.03);
+  else ctx.rect(-h*0.14,-h*0.68,h*0.28,h*0.42);
+  ctx.fill();
+  for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(0,-h*0.6+i*h*0.09,h*0.015,0,Math.PI*2);ctx.fillStyle=rgb(s2);ctx.fill();}
+  ctx.save();ctx.translate(-h*0.14*dir,-h*0.56);ctx.rotate((-0.3-waveAmt*0.3)*dir);
+  ctx.fillStyle=rgb(c);ctx.fillRect(-h*0.055,-h*0.2,h*0.07,h*0.22);
+  ctx.fillStyle=rgb(tint([200,80,80]));ctx.beginPath();ctx.ellipse(0,-h*0.22,h*0.06,h*0.07,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+  ctx.save();ctx.translate(h*0.14*dir,-h*0.56);ctx.rotate(0.15*dir);
+  ctx.fillStyle=rgb(c);ctx.fillRect(-h*0.015,-h*0.2,h*0.07,h*0.22);
+  ctx.fillStyle=rgb(tint([200,80,80]));ctx.beginPath();ctx.ellipse(h*0.02,-h*0.22,h*0.06,h*0.07,0,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+  ctx.fillStyle=rgb(s2);
+  if(ctx.roundRect){ctx.beginPath();ctx.roundRect(-h*0.1,-h*0.75,h*0.2,h*0.08,h*0.03);ctx.fill();}
+  else{ctx.fillRect(-h*0.1,-h*0.75,h*0.2,h*0.08);}
+  ctx.beginPath();ctx.ellipse(h*0.03*dir,-h*0.73,h*0.03,h*0.025,0,0,Math.PI*2);ctx.fillStyle=rgb(tint([s2[0]+20,s2[1]+20,s2[2]+20]));ctx.fill();
+  ctx.fillStyle=rgb(hr);
+  ctx.beginPath();ctx.ellipse(-dir*h*0.02,-h*0.88,h*0.11,h*0.14,0.2*dir,0,Math.PI*2);ctx.fill();
+  for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(i*h*0.06,-h*0.78);ctx.quadraticCurveTo(i*h*0.1+dir*h*0.03,-h*0.6,i*h*0.09,-h*0.38);ctx.lineWidth=h*0.028;ctx.strokeStyle=rgb(hr);ctx.stroke();}
+  ctx.fillStyle=rgb(sk2);ctx.beginPath();ctx.ellipse(0,-h*0.88,h*0.1,h*0.12,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=rgb(hat);
+  ctx.beginPath();ctx.ellipse(0,-h*0.95,h*0.11,h*0.07,0,0,Math.PI*2);ctx.fill();
+  ctx.fillRect(-h*0.11,-h*1.08,h*0.22,h*0.15);
+  ctx.beginPath();ctx.ellipse(0,-h*1.08,h*0.11,h*0.04,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.arc(dir*h*0.02,-h*1.1,h*0.038,0,Math.PI*2);ctx.fillStyle=rgb(tint([255,255,255]));ctx.fill();
+  ctx.fillStyle=rgb(hr);ctx.beginPath();
+  ctx.moveTo(-h*0.08,-h*0.98);ctx.quadraticCurveTo(-h*0.09,-h*0.86,-h*0.06,-h*0.8);
+  ctx.quadraticCurveTo(-h*0.1,-h*0.78,-h*0.07,-h*0.76);ctx.quadraticCurveTo(-h*0.05,-h*0.74,-h*0.03,-h*0.76);
+  ctx.closePath();ctx.fill();
+  const ex=dir*h*0.03;
+  ctx.beginPath();ctx.ellipse(ex,-h*0.9,h*0.015,h*0.018,0,0,Math.PI*2);ctx.fillStyle=rgb(tint([40,30,20]));ctx.fill();
+  ctx.beginPath();ctx.arc(ex+h*0.005*dir,-h*0.904,h*0.006,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.7)';ctx.fill();
+  ctx.beginPath();ctx.moveTo(ex-h*0.025,-h*0.915);ctx.lineTo(ex+h*0.025,-h*0.912);ctx.lineWidth=h*0.012;ctx.strokeStyle=rgb(tint([100,70,30]));ctx.stroke();
+  ctx.beginPath();ctx.ellipse(ex,-h*0.875,h*0.028,h*0.018,0,0,Math.PI*2);ctx.fillStyle='rgba('+tint([255,160,140]).join(',')+',0.4)';ctx.fill();
+  ctx.beginPath();ctx.arc(0,-h*0.868,h*0.03,0.2,Math.PI-0.2);ctx.lineWidth=h*0.01;ctx.strokeStyle=rgb(tint([180,80,60]));ctx.stroke();
+  ctx.restore();
+}
+
+let ts0=null;
+function frame(now){
+  if(!ts0)ts0=now;
+  const ts=now-ts0;
+  if(W===0){requestAnimationFrame(frame);return;}
+  const hour=getHour(),sk=getSky(hour),gy=H*0.72;
+  drawSky(sk);drawStars(sk,ts);drawAurora(ts,sk.amb);drawMoon(sk,ts);drawSun(sk);
+  drawClouds();drawWater(sk,ts);drawGround(sk);drawCity(sk,sk.amb);
+  drawGirl(W*0.14,gy,1,sk.amb,ts);drawGirl(W*0.86,gy,-1,sk.amb,ts);
+  drawSnow();
+  requestAnimationFrame(frame);
+}
+
+function resize(){
+  W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;
+  winLights=[];initScene();
+}
+window.addEventListener('resize',resize);
+
+let quoteIdx=0,quoteTimer=0;
+function getStartTs(){try{let v=localStorage.getItem(LS_KEY);if(!v){v=Date.now().toString();localStorage.setItem(LS_KEY,v);}return parseInt(v,10);}catch(e){return Date.now();}}
+const startTs=getStartTs();
+
+function updateCountdown(){
+  const now=Date.now(),diff=TARGET.getTime()-now;
+  if(diff<=0){document.getElementById('celebration').style.display='flex';startConfetti();return;}
+  const d=Math.floor(diff/86400000);
+  const h=Math.floor((diff%86400000)/3600000);
+  const m=Math.floor((diff%3600000)/60000);
+  const s=Math.floor((diff%60000)/1000);
+  document.getElementById('d-days').textContent=d;
+  document.getElementById('d-hours').textContent=String(h).padStart(2,'0');
+  document.getElementById('d-min').textContent=String(m).padStart(2,'0');
+  document.getElementById('d-sec').textContent=String(s).padStart(2,'0');
+  const pct=Math.min(100,Math.max(0,(now-startTs)/(TARGET.getTime()-startTs)*100));
+  document.getElementById('prog-fill').style.width=pct+'%';
+  quoteTimer++;if(quoteTimer%80===0||quoteTimer===1){quoteIdx=(quoteIdx+1)%QUOTES.length;document.getElementById('quote').textContent=QUOTES[quoteIdx];}
+  setTimeout(updateCountdown,1000);
+}
+
+let confParts=[];
+function startConfetti(){
+  const cc=document.getElementById('confetti-canvas');
+  cc.width=window.innerWidth;cc.height=window.innerHeight;
+  const cctx=cc.getContext('2d');
+  const cols=['#FECC02','#006AA7','#ffffff','#FFD700','#4FC3F7'];
+  for(let i=0;i<140;i++) confParts.push({x:Math.random()*window.innerWidth,y:-10-Math.random()*200,vx:(Math.random()-0.5)*3,vy:2+Math.random()*3,r:4+Math.random()*6,rot:Math.random()*360,vr:(Math.random()-0.5)*6,col:cols[Math.floor(Math.random()*cols.length)]});
+  function cf(){
+    cctx.clearRect(0,0,cc.width,cc.height);
+    confParts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;if(p.y>cc.height+20)p.y=-20;cctx.save();cctx.translate(p.x,p.y);cctx.rotate(p.rot*Math.PI/180);cctx.fillStyle=p.col;cctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);cctx.restore();});
+    requestAnimationFrame(cf);
+  }cf();
+}
+
+const rmotion=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+resize();updateCountdown();
+if(!rmotion) requestAnimationFrame(frame);
+else{const hour=getHour(),sk=getSky(hour),gy=H*0.72;drawSky(sk);drawGround(sk);drawCity(sk,sk.amb);drawGirl(W*0.14,gy,1,sk.amb,0);drawGirl(W*0.86,gy,-1,sk.amb,0);}
+})();
 </script>
 </body>
 </html>
